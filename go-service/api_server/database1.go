@@ -6,6 +6,8 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"os"
+	"strings"
 	"sync"
 	"time"
 
@@ -24,7 +26,32 @@ func ConnectDB(sqlOpen SqlOpener) (*sql.DB, error) {
 		return nil, err
 	}
 	log.Println("Database connected successfully.")
+	setupDB(db, "init.sql")
 	return db, nil
+}
+
+func setupDB(db *sql.DB, filePath string) error {
+	content, err := os.ReadFile(filePath)
+	if err != nil {
+		log.Println("failed to read init.sql:", err)
+		return err
+	}
+
+	queries := strings.Split(string(content), ";")
+	for _, query := range queries {
+		query = strings.TrimSpace(query)
+		if query == "" {
+			continue
+		}
+		_, err := db.Exec(query)
+		if err != nil {
+			log.Println("failed to execute query:", query, "error:", err)
+			return err
+		}
+	}
+
+	log.Println("Database setup completed successfully.")
+	return nil
 }
 
 func ProcessFile(dbConn *sql.DB, file RepoFile, wg *sync.WaitGroup, results chan<- Result) {

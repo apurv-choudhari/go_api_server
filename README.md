@@ -37,8 +37,45 @@ Unlike /scan, the /query endpoint is a read-only operation. Since database queri
 
 
 ## Execution Steps 
+Project can be executed by running docker image or manually building the go service. 
+1. Docker Image
+   This image is build for arm64 platform.
+   ```
+   docker pull apurv98/go_api_server
+   docker run -p 8000:8000 apurv98/go_api_server
+   ```
 
-```
-docker pull apurv98/go_api_server
-docker run -p 8000:8000 apurv98/go_api_server
-```
+OR
+
+2. Manual Build 
+   - Clone the repo
+   - Install MariaDB
+   - Update root password for the database `ALTER USER 'root'@'localhost' IDENTIFIED BY "rootpass";`
+   - Build the go-app
+      ```
+      cd go_api_server/go-service
+      go build -o go-app .
+      ./go-app
+      ```
+
+   Once you have the service up and running on port 8000, call REST APIs using below curl commands. (I prefer postman :))
+
+   - /scan 
+      ```
+      curl --location --request POST 'http://localhost:8000/scan' \
+      --header 'Content-Type: application/json' \
+      --data-raw '{
+         "repo_url": "https://github.com/velancio/vulnerability_scans", 
+         "files": ["vulnscan15.json", "vulnscan16.json", "vulnscan1011.json", "vulnscan1213.json", "vulscan123.json"]
+      }'
+      ```
+   - /query
+      ```
+      curl --location --request POST 'http://localhost:8000/query' \
+      --header 'Content-Type: application/json' \
+      --data-raw '{
+         "filters": {
+            "severity": "HIGH"
+         }
+      }'
+      ```
