@@ -15,7 +15,7 @@ func main() {
 	router := mux.NewRouter()
 
 	var err error
-	dbConn, err = api_server.ConnectDB()
+	dbConn, err = api_server.ConnectDB(sql.Open)
 	if err != nil {
 		log.Fatal("Database connection failed: ", err)
 		return

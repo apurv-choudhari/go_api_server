@@ -12,9 +12,11 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-func ConnectDB() (*sql.DB, error) {
+type SqlOpener func(driverName, dataSourceName string) (*sql.DB, error)
+
+func ConnectDB(sqlOpen SqlOpener) (*sql.DB, error) {
 	dsn := "root:rootpass@tcp(localhost:3306)/mysql"
-	db, err := sql.Open("mysql", dsn)
+	db, err := sqlOpen("mysql", dsn)
 	if err != nil {
 		return nil, err
 	}

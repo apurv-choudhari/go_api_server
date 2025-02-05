@@ -1,11 +1,14 @@
 FROM golang:1.23 AS builder
 
-RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && \
+    apt-get install -y git && \
+    rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 COPY . .
 
 WORKDIR /app/go-service
+RUN go mod tidy
 RUN go mod download
 RUN go build -o go-app .
 
@@ -29,5 +32,7 @@ RUN mkdir -p /var/run/mysqld && \
 
 COPY init.sql /docker-entrypoint-initdb.d/
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+EXPOSE 8000
 
 CMD ["/usr/bin/supervisord"]

@@ -27,8 +27,10 @@ func parseGitHubURL(repoURL string) (string, string, error) {
 	return owner, repo, nil
 }
 
+var githubAPIURL = "https://api.github.com/repos/%s/%s/contents/"
+
 func getRepoFiles(owner, repo string, scanFiles []string) ([]RepoFile, error) {
-	apiURL := fmt.Sprintf("https://api.github.com/repos/%s/%s/contents/", owner, repo)
+	apiURL := fmt.Sprintf(githubAPIURL, owner, repo)
 	log.Printf("Getting repository files from GitHub: %s", apiURL)
 
 	resp, err := http.Get(apiURL)
